@@ -1,0 +1,6 @@
+Models
+Controllers
+.openapi-generator-ignore
+.openapi-generator
+CustomControllerFeatureProvider.cs
+ServerProvider.cs

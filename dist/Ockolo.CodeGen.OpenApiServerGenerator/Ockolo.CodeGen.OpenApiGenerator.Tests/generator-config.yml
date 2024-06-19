@@ -1,0 +1,100 @@
+aspnetCoreVersion: 8.0
+
+# Target to build an application or library (Default: program)
+# program - Generate code for a standalone server
+# library - Generate code for a server abstract class library
+buildTarget: program
+
+# Class Modifier for controller classes: Empty string or abstract. (Default: )
+classModifier: ""
+
+# ASP.Net Core CompatibilityVersion (Default: Version_2_2)
+compatibilityVersion: Version_2_2
+
+# Generates method body. (Default: true)
+generateBody: true
+
+# Is the build a library (Default: false)
+isLibrary: false
+
+# The name of the license (Default: NoLicense)
+licenseName: NoLicense
+
+# The URL of the license (Default: http://localhost)
+licenseUrl: http://localhost
+
+# Version for Microsoft.AspNetCore.Mvc.NewtonsoftJson for ASP.NET Core 3.0+ (Default: 3.0.0)
+newtonsoftVersion: 3.0.0
+
+# Use nullable annotations in the project. Only supported on C# 8 / ASP.NET Core 3.1 or newer. (Default: false)
+nullableReferenceTypes: false
+
+# Set methods to async or sync (default). (Default: false)
+operationIsAsync: true
+
+# Set methods result to Task<>. (Default: false)
+operationResultTask: false
+
+# Specifies Authors property in the .NET Core project file. (Default: OpenAPI)
+packageAuthors: OpenAPI
+
+# Specifies an AssemblyCopyright for the .NET Framework global assembly attributes stored in the AssemblyInfo file. (Default: No Copyright)
+packageCopyright: No Copyright
+
+# Specifies a AssemblyDescription for the .NET Framework global assembly attributes stored in the AssemblyInfo file. (Default: A library generated from a OpenAPI doc)
+packageDescription: A library generated from a OpenAPI doc
+
+# The GUID that will be associated with the C# project
+packageGuid: ""
+
+# C# package name (convention: Title.Case). (Default: Org.OpenAPITools)
+packageName: Ockolo.CodeGen.OpenApiGenerator.Tests
+
+# Specifies an AssemblyTitle for the .NET Framework global assembly attributes stored in the AssemblyInfo file. (Default: OpenAPI Library)
+packageTitle: Ockolo API
+
+# C# package version. (Default: 1.0.0)
+packageVersion: 1.0.0
+
+# Build POCO Models (Default: false)
+pocoModels: false
+
+# Return ICollection<T> instead of the concrete type. (Default: false)
+returnICollection: false
+
+# Sort method arguments to place required parameters before optional parameters. (Default: true)
+sortParamsByRequiredFlag: true
+
+# Source folder for generated code (Default: src)
+sourceFolder: src
+
+# Swashbuckle version (Default: 3.0.0)
+# 3.0.0 - Swashbuckle 3.0.0
+# 4.0.0 - Swashbuckle 4.0.0
+# 5.0.0 - Swashbuckle 5.0.0
+# 6.4.0 - Swashbuckle 6.4.0
+swashbuckleVersion: 6.4.0
+
+# Deserialize array types to Collection<T> instead of List<T>. (Default: false)
+useCollection: false
+
+# Use DateTime to model date properties even if DateOnly supported. (.net 6.0+ only) (Default: false)
+useDateTimeForDate: false
+
+# Use DateTimeOffset to model date-time properties (Default: false)
+useDateTimeOffset: true
+
+# Use default routing for the ASP.NET Core version. (Default: true)
+useDefaultRouting: true
+
+# Use frameworkReference for ASP.NET Core 3.0+ and PackageReference ASP.NET Core 2.2 or earlier. (Default: false)
+useFrameworkReference: false
+
+# Uses the Newtonsoft JSON library. (Default: true)
+useNewtonsoft: false
+
+# Create a separate project for models (Default: false)
+useSeparateModelProject: false
+
+# Uses the Swashbuckle.AspNetCore NuGet package for documentation. (Default: true)
+useSwashbuckle: true

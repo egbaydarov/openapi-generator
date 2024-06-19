@@ -10,13 +10,21 @@ namespace Ockolo.CodeGen.OpenApiServerGenerator;
 public class OpenApiCodeGenerator : ISourceGenerator
 {
     private static readonly DiagnosticDescriptor InformationalMessageDescriptor = new(
-        id: "OCGINFO01", 
-        title: "Informational Message", 
-        messageFormat: "{0}", 
-        category: "SourceGenerator", 
-        defaultSeverity: DiagnosticSeverity.Info, 
+        id: "OCGINFO01",
+        title: "Informational Message",
+        messageFormat: "{0}",
+        category: "SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
-    
+
+    private static readonly DiagnosticDescriptor ErrorDescriptor = new(
+        id: "OCGERRO01",
+        title: "Source Generator Error",
+        messageFormat: "{0}",
+        category: "SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public void Initialize(GeneratorInitializationContext context)
     {
     }
@@ -25,60 +33,51 @@ public class OpenApiCodeGenerator : ISourceGenerator
     {
         try
         {
-            var outputPath = Path.GetTempPath() + Guid.NewGuid();
-            
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
-                key: "build_property.ConfigOckoloCodeGenOpenApiServerGenerator",
-                value: out var configPath);
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
-                key: "build_property.SpecOckoloCodeGenOpenApiServerGenerator",
-                value: out var specPath);
-            
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
-                key: "build_property.projectDir",
-                value: out var projDir);
+            var outputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var (configPath, specPath, projDir) = GetPaths(context);
+                
+            if (projDir == null || specPath == null || configPath == null)
+            {
+                ReportError(context, "Failed to retrieve necessary paths.");
+                return;
+            }
 
-            specPath = Path.GetFullPath(Path.Combine(projDir!, specPath!));
-            configPath = Path.GetFullPath(Path.Combine(projDir, configPath!));
+            specPath = Path.GetFullPath(Path.Combine(projDir, specPath));
+            configPath = Path.GetFullPath(Path.Combine(projDir, configPath));
 
             Log(context, $"Config: {configPath}");
             Log(context, $"Spec: {specPath}");
             Log(context, $"Output: {outputPath}");
-            
+
             GenerateCodeFromJava(context, configPath, specPath, outputPath);
             AddGeneratedFilesToCompilation(context, outputPath);
-            
+
             Directory.Delete(outputPath, true);
         }
         catch (Exception ex)
         {
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
-                id: "OCGERRO01",
-                title: "Source Generator Error",
-                messageFormat: ex.ToString(),
-                category: "SourceGenerator",
-                defaultSeverity: DiagnosticSeverity.Error,
-                isEnabledByDefault: true), Location.None));
+            ReportError(context, ex.ToString());
         }
+    }
+
+    private static (string? configPath, string? specPath, string? projDir) GetPaths(GeneratorExecutionContext context)
+    {
+        context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
+            "build_property.ConfigOckoloCodeGenOpenApiServerGenerator",
+            out var configPath);
+        context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
+            "build_property.SpecOckoloCodeGenOpenApiServerGenerator",
+            out var specPath);
+        context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
+            "build_property.projectDir",
+            out var projDir);
+
+        return (configPath, specPath, projDir);
     }
 
     private void GenerateCodeFromJava(GeneratorExecutionContext context, string configPath, string specPath, string outputPath)
     {
-        var resourcePath = $"Ockolo.CodeGen.OpenApiServerGenerator.openapi-generator-cli.jar";
-        
-        context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
-            key: "build_property.JarOckoloCodeGenOpenApiServerGenerator",
-            value: out var jarFilePath);
-
-        var isLocalFile = true; 
-        if (string.IsNullOrEmpty(jarFilePath))
-        {
-            isLocalFile = false;
-            jarFilePath = Path.GetTempFileName();
-            using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
-            using var fileStream = new FileStream(jarFilePath, FileMode.Create, FileAccess.Write);
-            resourceStream!.CopyTo(fileStream);
-        }
+        var jarFilePath = GetJarFilePath(context);
 
         var startInfo = new ProcessStartInfo
         {
@@ -91,27 +90,53 @@ public class OpenApiCodeGenerator : ISourceGenerator
         };
 
         using var process = Process.Start(startInfo);
-        
+
         if (process == null || !process.WaitForExit(10000))
         {
             throw new Exception("Failed to start Java process");
         }
 
-        if (!isLocalFile)
-        {
-            File.Delete(jarFilePath);
-        }
-
         using var reader = process.StandardOutput;
         using var errorReader = process.StandardError;
 
-        var result = reader.ReadToEnd();
-        Log(context, $"Java Output: {result}");
+        Log(context, $"Java Output: {reader.ReadToEnd()}");
 
         var error = errorReader.ReadToEnd();
         if (!string.IsNullOrEmpty(error))
         {
             throw new Exception(error);
+        }
+
+        CleanupJarFile(jarFilePath, context);
+    }
+
+    private string GetJarFilePath(GeneratorExecutionContext context)
+    {
+        const string resourcePath = "Ockolo.CodeGen.OpenApiServerGenerator.openapi-generator-cli.jar";
+        context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
+            "build_property.JarOckoloCodeGenOpenApiServerGenerator",
+            out var jarFilePath);
+
+        if (string.IsNullOrEmpty(jarFilePath))
+        {
+            jarFilePath = Path.GetTempFileName();
+            using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+            using var fileStream = new FileStream(jarFilePath, FileMode.Create, FileAccess.Write);
+            resourceStream!.CopyTo(fileStream);
+        }
+
+        return jarFilePath!;
+    }
+
+    private static void CleanupJarFile(string jarFilePath, GeneratorExecutionContext context)
+    {
+        context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(
+            "build_property.JarOckoloCodeGenOpenApiServerGenerator",
+            out var jarFilePathConfig);
+
+        if (string.IsNullOrEmpty(jarFilePathConfig))
+        {
+            File.Delete(jarFilePath);
         }
     }
 
@@ -119,9 +144,8 @@ public class OpenApiCodeGenerator : ISourceGenerator
     {
         foreach (var file in Directory.EnumerateFiles(outputPath, "*.cs", SearchOption.AllDirectories))
         {
-            context.AddSource(
-                hintName: Path.GetFileNameWithoutExtension(file) +".g.cs",
-                source: File.ReadAllText(file));
+            var sourceText = File.ReadAllText(file);
+            context.AddSource(Path.GetFileNameWithoutExtension(file) + ".g.cs", sourceText);
         }
     }
 
@@ -129,6 +153,14 @@ public class OpenApiCodeGenerator : ISourceGenerator
     {
         context.ReportDiagnostic(Diagnostic.Create(
             descriptor: InformationalMessageDescriptor,
+            location: Location.None,
+            messageArgs: message));
+    }
+
+    private static void ReportError(GeneratorExecutionContext context, string message)
+    {
+        context.ReportDiagnostic(Diagnostic.Create(
+            descriptor: ErrorDescriptor,
             location: Location.None,
             messageArgs: message));
     }

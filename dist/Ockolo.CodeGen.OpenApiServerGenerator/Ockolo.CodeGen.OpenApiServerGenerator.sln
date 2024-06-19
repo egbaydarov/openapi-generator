@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ockolo.CodeGen.OpenApiServe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ockolo.CodeGen.OpenApiServerGenerator.Dependencies", "Ockolo.CodeGen.OpenApiServerGenerator.Dependencies\Ockolo.CodeGen.OpenApiServerGenerator.Dependencies.csproj", "{525148EA-6CFB-4766-944D-B46363180875}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ockolo.CodeGen.Tests", "Ockolo.CodeGen.Tests\Ockolo.CodeGen.Tests.csproj", "{E8308E27-4A65-4F8A-AFCC-0E85065840D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ockolo.CodeGen.OpenApiGenerator.Tests", "Ockolo.CodeGen.OpenApiGenerator.Tests\Ockolo.CodeGen.OpenApiGenerator.Tests.csproj", "{76E6D5BA-9923-4D60-AD0D-7C93E096A5DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{525148EA-6CFB-4766-944D-B46363180875}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{525148EA-6CFB-4766-944D-B46363180875}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{525148EA-6CFB-4766-944D-B46363180875}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E8308E27-4A65-4F8A-AFCC-0E85065840D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8308E27-4A65-4F8A-AFCC-0E85065840D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8308E27-4A65-4F8A-AFCC-0E85065840D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8308E27-4A65-4F8A-AFCC-0E85065840D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76E6D5BA-9923-4D60-AD0D-7C93E096A5DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76E6D5BA-9923-4D60-AD0D-7C93E096A5DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76E6D5BA-9923-4D60-AD0D-7C93E096A5DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76E6D5BA-9923-4D60-AD0D-7C93E096A5DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

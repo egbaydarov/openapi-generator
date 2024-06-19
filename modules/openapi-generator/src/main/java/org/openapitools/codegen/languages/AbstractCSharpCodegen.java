@@ -457,6 +457,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen {
                 .put("uniqueLines", new UniqueLambda("\n", false))
                 .put("unique", new UniqueLambda("\n", true))
                 .put("camel_case", new CamelCaseLambda())
+                .put("pascal_case", new CamelCaseAndSanitizeLambda(false))
                 .put("escape_reserved_word", new EscapeKeywordLambda(this::escapeKeyword));
     }
 
