@@ -193,6 +193,8 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen {
                         "DateTimeOffset",
                         "DateOnly?",
                         "DateOnly",
+                        "TimeSpan",
+                        "TimeSpan?",
                         "Boolean",
                         "Double",
                         "Decimal",
@@ -1930,7 +1932,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen {
     }
 
     protected Set<String> getValueTypes() {
-        return new HashSet<>(Arrays.asList("decimal", "bool", "int", "uint", "long", "ulong", "float", "double", "DateTime", "DateOnly", "DateTimeOffset", "Guid"));
+        return new HashSet<>(Arrays.asList("decimal", "bool", "int", "uint", "long", "ulong", "float", "double", "DateTime", "DateOnly", "DateTimeOffset", "Guid", "TimeSpan"));
     }
 
     protected void setTypeMapping() {
@@ -1958,6 +1960,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen {
         typeMapping.put("UUID", "Guid");
         typeMapping.put("URI", "string");
         typeMapping.put("AnyType", "Object");
+        typeMapping.put("duration", "TimeSpan");
 
         if (this.useCollection) {
             typeMapping.put("array", "Collection");
