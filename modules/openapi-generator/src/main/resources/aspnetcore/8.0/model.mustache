@@ -1,0 +1,40 @@
+{{>partial_header}}
+#nullable disable
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+
+{{#models}}
+{{#model}}
+namespace {{modelPackage}};
+{{#isEnum}}
+{{>enumClass}}{{/isEnum}}
+{{^isEnum}}internal class {{classname}}DataModel()
+{ {{#vars}}{{#required}}
+    [Required]
+    [JsonRequired]{{/required}}{{#pattern}}
+    [RegularExpression("{{{.}}}")]{{/pattern}}{{#minLength}}{{#maxLength}}
+    [StringLength({{maxLength}}, MinimumLength={{minLength}})]{{/maxLength}}{{/minLength}}{{#minLength}}{{^maxLength}}
+    [MinLength({{minLength}})]{{/maxLength}}{{/minLength}}{{^minLength}}{{#maxLength}}
+    [MaxLength({{.}})]{{/maxLength}}{{/minLength}}{{#minimum}}{{#maximum}}
+    [Range({{minimum}}, {{maximum}})]{{/maximum}}{{/minimum}}
+    [DataMember(Name="{{baseName}}", EmitDefaultValue=false{{#required}}, IsRequired=true{{/required}})]
+    public {{#isArray}}List<{{items.dataType}}{{^items.isEnum}}{{^items.isEnumRef}}{{^items.isPrimitiveType}}DataModel{{/items.isPrimitiveType}}{{/items.isEnumRef}}{{/items.isEnum}}> {{name}}{{/isArray}}{{^isArray}}{{{dataType}}}{{^isPrimitiveType}}DataModel{{/isPrimitiveType}}{{#nullableReferenceTypes}}{{^isContainer}}{{^required}}?{{/required}}{{/isContainer}}{{/nullableReferenceTypes}} {{name}}{{/isArray}} { get; set; }
+    {{/vars}}
+}
+
+public record {{classname}}(
+    {{#vars}}
+    {{{dataType}}}{{#nullableReferenceTypes}}{{^isContainer}}{{^required}}?{{/required}}{{/isContainer}}{{/nullableReferenceTypes}} {{name}}{{^-last}},{{/-last}}{{#-last}});{{/-last}}
+    {{/vars}}
+
+internal static partial class ModelsExtensions
+{
+{{>extensions_template}}
+}
+{{/isEnum}}
+{{/model}}
+{{/models}}

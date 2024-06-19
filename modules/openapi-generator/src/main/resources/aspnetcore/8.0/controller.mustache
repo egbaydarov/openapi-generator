@@ -1,0 +1,149 @@
+{{>partial_header}}
+#nullable enable
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using {{modelPackage}};
+
+namespace {{apiPackage}};
+{{#operations}}
+public interface I{{classname}}RequestHandler
+{
+    {{#operation}}
+    public Task<{{returnType}}Response> {{operationId}}Async(
+        {{#allParams}}
+            {{&dataType}} {{paramName}}{{^-last}},{{/-last}}{{#-last}});{{/-last}}
+        {{/allParams}}
+    {{^-last}}
+
+    {{/-last}}
+    {{/operation}}
+}
+
+[ApiController]
+internal class {{classname}}Controller : InternalControllerBase
+{
+    private readonly I{{classname}}RequestHandler requestHandler;
+
+    public {{classname}}Controller(
+        I{{classname}}RequestHandler requestHandler)
+    {
+        this.requestHandler = requestHandler;
+    }
+
+    {{#operation}}
+    [{{httpMethod}}]
+    [Route("{{{basePathWithoutHost}}}{{{path}}}")]
+    {{#vendorExtensions.x-aspnetcore-consumes}}
+    [Consumes({{&vendorExtensions.x-aspnetcore-consumes}})]
+    {{/vendorExtensions.x-aspnetcore-consumes}}
+    public async Task<IActionResult> {{operationId}}({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{^-last}}{{^isCookieParam}}, {{/isCookieParam}}{{/-last}}{{#-last}}, {{/-last}}{{/allParams}}CancellationToken cancellationToken){{^generateBody}};{{/generateBody}}
+    {{#generateBody}}
+    {
+        if (!this.ModelState.IsValid)
+        {
+            return new BadRequestObjectResult(
+                new ValidationProblemDetails(ModelState))
+            {
+                ContentTypes = ["application/problem+json"]
+            };
+        }
+
+        var result = await requestHandler.{{operationId}}Async(
+            {{#allParams}}
+            {{^isArray}}{{^isPrimitiveType}}ModelsExtensions.FromDataModel({{paramName}}){{/isPrimitiveType}}{{#isPrimitiveType}}{{paramName}}{{/isPrimitiveType}}{{/isArray}}{{#isArray}}{{^isPrimitiveType}}{{paramName}}.Select(ModelsExtensions.FromDataModel).ToList(){{/isPrimitiveType}}{{/isArray}}{{^-last}},{{/-last}}{{#-last}});{{/-last}}
+            {{/allParams}}
+
+        return result.ExhaustiveMatch<IActionResult>(
+                {{#responses}}
+                onStatus{{code}}: model =>
+                {
+                    var jsonText = JsonSerializer.Serialize(
+                        value: ModelsExtensions.ToDataModel(model.Body));
+
+                    return new ContentResult
+                    {
+                        Content = jsonText,
+                        ContentType = "application/json",
+                        StatusCode = {{code}}
+                    };
+                }{{^-last}},{{/-last}}{{#-last}});{{/-last}}
+            {{/responses}}
+    }
+    {{/generateBody}}
+    {{/operation}}
+}
+
+{{#operation}}
+public class {{returnType}}Response
+{
+    {{#responses}}
+    public class {{returnType}}{{code}}
+    {
+        public {{returnType}}{{code}}(
+            {{&dataType}} body)
+        {
+            this.Body = body;
+        }
+
+        public {{&dataType}} Body { get; set; }
+    }
+    {{/responses}}
+
+    {{#responses}}
+    private readonly {{returnType}}{{code}}? status{{code}};
+    {{/responses}}
+
+    private {{returnType}}Response(
+        {{#responses}}
+        {{returnType}}{{code}}? status{{code}} = default{{^-last}},{{/-last}}{{#-last}}){{/-last}}
+        {{/responses}}
+    {
+        {{#responses}}
+        this.status{{code}} = status{{code}};
+        {{/responses}}
+    }
+
+    {{#responses}}
+    public static {{returnType}}Response FromStatus{{code}}(
+        {{returnType}}{{code}} onStatus{{code}})
+    {
+      return new {{returnType}}Response(
+        status{{code}}: onStatus{{code}});
+    }
+    {{/responses}}
+
+
+    public T ExhaustiveMatch<T>(
+        {{#responses}}
+        Func<{{returnType}}{{code}}, T> onStatus{{code}}{{^-last}},{{/-last}}{{#-last}}){{/-last}}
+        {{/responses}}
+    {
+        {{#responses}}
+        {{^-last}}
+        if (this.status{{code}} != null)
+        {
+            return onStatus{{code}}(this.status{{code}});
+        }
+        {{/-last}}
+        {{#-last}}
+
+        if (this.status{{code}} == null)
+        {
+            throw new NotSupportedException();
+        }
+
+        return onStatus{{code}}(this.status{{code}});
+        {{/-last}}
+        {{/responses}}
+    }
+}
+{{/operation}}
+
+{{/operations}}

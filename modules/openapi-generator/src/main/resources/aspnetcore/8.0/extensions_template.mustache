@@ -1,0 +1,17 @@
+    public static {{modelPackage}}.{{classname}}DataModel ToDataModel(Models.{{classname}} instance)   
+    {
+        return new {{modelPackage}}.{{classname}}DataModel
+        {
+            {{#vars}}
+            {{name}} = {{#isEnum}}instance.{{name}}{{/isEnum}}{{^isEnum}}{{^isPrimitiveType}}{{^isArray}}ToDataModel({{/isArray}}{{/isPrimitiveType}}instance.{{name}}{{^isArray}}{{^isPrimitiveType}}){{/isPrimitiveType}}{{/isArray}}{{#isArray}}{{^items.isEnum}}{{^items.isEnumRef}}{{^items.isPrimitiveType}}.Select(ToDataModel).ToList(){{/items.isPrimitiveType}}{{/items.isEnumRef}}{{/items.isEnum}}{{/isArray}}{{/isEnum}}{{^-last}},{{/-last}}{{#-last}}{{/-last}}
+            {{/vars}}
+        };
+    }
+
+    public static Models.{{classname}} FromDataModel({{modelPackage}}.{{classname}}DataModel dataModel)
+    {
+        return new Models.{{classname}}(
+            {{#vars}}
+            {{#isEnum}}dataModel.{{name}}{{/isEnum}}{{^isEnum}}{{^isPrimitiveType}}{{^isArray}}FromDataModel({{/isArray}}{{/isPrimitiveType}}dataModel.{{name}}{{^isArray}}{{^isPrimitiveType}}){{/isPrimitiveType}}{{/isArray}}{{#isArray}}{{^items.isEnum}}{{^items.isEnumRef}}{{^items.isPrimitiveType}}.Select(FromDataModel).ToList(){{/items.isPrimitiveType}}{{/items.isEnumRef}}{{/items.isEnum}}{{/isArray}}{{/isEnum}}{{^-last}},{{/-last}}{{#-last}});{{/-last}}
+            {{/vars}}
+    }
