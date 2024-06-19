@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <NoWarn>NU5128;RS2007;NU1201;NU5100</NoWarn>
+        <LangVersion>10</LangVersion>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <PackOnBuild>true</PackOnBuild>
+        <PackageId>Ockolo.CodeGen.OpenApiServerGenerator</PackageId>
+        <Version>1.1.19</Version>
+        <Authors>Egor Baydarov</Authors>
+        <Company>byda.io</Company>
+        <Description>A source generator for generating ASP.NET Core code from OpenAPI specifications using the OpenAPI Generator CLI.</Description>
+        <PackageTags>OpenAPI Generator ASP.NET Core</PackageTags>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/egbaydarov/openapi-generator</PackageProjectUrl>
+        <PackageIcon>images/nuget_open_api.png</PackageIcon>
+        <PackageReadmeFile>docs/readme.md</PackageReadmeFile>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Update="images/nuget_open_api.png" Pack="true" PackagePath=""/>
+        <None Update="docs/readme.md" Pack="true" PackagePath="" />
+        <EmbeddedResource Include="..\..\..\modules\openapi-generator-cli\target\openapi-generator-cli.jar" />
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
+</Project>
